@@ -1,60 +1,109 @@
 import React from 'react';
-import { Pencil, Trash2, Calendar, Clock, CheckCircle, Circle } from 'lucide-react';
+import { Pencil, Trash2, Calendar, CheckCircle2, Circle, Flag, Tag } from 'lucide-react';
 import { format } from 'date-fns';
 
 const TaskCard = ({ task, onEdit, onDelete, onToggleComplete }) => {
-    const priorityColors = {
-        High: 'bg-red-100 text-red-800',
-        Medium: 'bg-yellow-100 text-yellow-800',
-        Low: 'bg-green-100 text-green-800',
+    const getPriorityClass = (priority) => {
+        switch (priority) {
+            case 'High': return 'priority-high';
+            case 'Medium': return 'priority-medium';
+            case 'Low': return 'priority-low';
+            default: return 'priority-low';
+        }
     };
 
+    const getBadgeClass = (priority) => {
+        switch (priority) {
+            case 'High': return 'badge badge-high';
+            case 'Medium': return 'badge badge-medium';
+            case 'Low': return 'badge badge-low';
+            default: return 'badge badge-low';
+        }
+    };
+
+    const isOverdue = task.dueDate && !task.isCompleted && new Date(task.dueDate) < new Date();
+
     return (
-        <div className={`bg-white rounded-lg shadow-sm border p-4 transition duration-200 hover:shadow-md ${task.isCompleted ? 'opacity-75' : ''}`}>
-            <div className="flex justify-between items-start">
-                <div className="flex items-start space-x-3">
+        <div
+            className={`cyber-card p-4 ${getPriorityClass(task.priority)} ${task.isCompleted ? 'task-completed' : ''
+                }`}
+        >
+            <div className="flex justify-between items-start gap-3">
+                {/* Checkbox + Content */}
+                <div className="flex items-start gap-3 flex-1 min-w-0">
                     <button
                         onClick={() => onToggleComplete(task)}
-                        className={`mt-1 focus:outline-none ${task.isCompleted ? 'text-green-500' : 'text-gray-400 hover:text-gray-600'}`}
+                        className={`mt-0.5 p-0.5 rounded-full transition-all duration-300 flex-shrink-0 ${task.isCompleted
+                                ? 'text-status-low'
+                                : 'text-text-muted hover:text-neon-magenta'
+                            }`}
                     >
-                        {task.isCompleted ? <CheckCircle size={20} /> : <Circle size={20} />}
+                        {task.isCompleted ? (
+                            <CheckCircle2 className="w-5 h-5" />
+                        ) : (
+                            <Circle className="w-5 h-5" />
+                        )}
                     </button>
-                    <div>
-                        <h3 className={`font-semibold text-lg text-gray-800 ${task.isCompleted ? 'line-through text-gray-500' : ''}`}>
+
+                    <div className="flex-1 min-w-0">
+                        {/* Title */}
+                        <h3 className={`font-medium text-base text-text-primary mb-1 ${task.isCompleted ? 'task-title' : ''
+                            }`}>
                             {task.title}
                         </h3>
-                        <p className="text-gray-600 text-sm mt-1 mb-2">{task.description}</p>
 
-                        <div className="flex flex-wrap gap-2 text-xs">
-                            <span className={`px-2 py-1 rounded-full font-medium ${priorityColors[task.priority] || 'bg-gray-100 text-gray-800'}`}>
+                        {/* Description */}
+                        {task.description && (
+                            <p className="text-sm text-text-secondary mb-3 line-clamp-2">
+                                {task.description}
+                            </p>
+                        )}
+
+                        {/* Badges Row */}
+                        <div className="flex flex-wrap items-center gap-2">
+                            {/* Priority Badge */}
+                            <span className={getBadgeClass(task.priority)}>
+                                <Flag className="w-3 h-3 mr-1" />
                                 {task.priority}
                             </span>
-                            <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 font-medium border border-blue-100">
-                                {task.category}
-                            </span>
-                        </div>
 
-                        {(task.dueDate) && (
-                            <div className="flex items-center text-gray-500 text-xs mt-3">
-                                <Calendar size={14} className="mr-1" />
-                                <span className="mr-3">{format(new Date(task.dueDate), 'MMM d, yyyy')}</span>
-                            </div>
-                        )}
+                            {/* Category Badge */}
+                            {task.category && (
+                                <span className="badge badge-category">
+                                    <Tag className="w-3 h-3 mr-1" />
+                                    {task.category}
+                                </span>
+                            )}
+
+                            {/* Due Date */}
+                            {task.dueDate && (
+                                <span className={`flex items-center gap-1 text-xs font-medium ${isOverdue
+                                        ? 'text-status-high'
+                                        : 'text-text-muted'
+                                    }`}>
+                                    <Calendar className="w-3.5 h-3.5" />
+                                    {format(new Date(task.dueDate), 'MMM d, yyyy')}
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex space-x-1">
+                {/* Action Buttons */}
+                <div className="flex items-center gap-1 flex-shrink-0">
                     <button
                         onClick={() => onEdit(task)}
-                        className="p-1.5 text-gray-400 hover:text-indigo-600 rounded-full hover:bg-gray-100 transition"
+                        className="p-2 rounded-lg text-text-muted hover:text-neon-magenta hover:bg-neon-purple/20 transition-all duration-300"
+                        title="Edit task"
                     >
-                        <Pencil size={16} />
+                        <Pencil className="w-4 h-4" />
                     </button>
                     <button
                         onClick={() => onDelete(task._id)}
-                        className="p-1.5 text-gray-400 hover:text-red-600 rounded-full hover:bg-gray-100 transition"
+                        className="p-2 rounded-lg text-text-muted hover:text-status-high hover:bg-red-500/20 transition-all duration-300"
+                        title="Delete task"
                     >
-                        <Trash2 size={16} />
+                        <Trash2 className="w-4 h-4" />
                     </button>
                 </div>
             </div>

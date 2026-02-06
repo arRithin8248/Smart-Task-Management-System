@@ -1,111 +1,139 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Layout from '../components/Layout';
+import { Mail, Lock, User, Zap } from 'lucide-react';
 
 const Register = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     const submitHandler = async (e) => {
         e.preventDefault();
         if (password !== confirmPassword) {
-            setMessage('Passwords do not match');
-        } else {
-            setMessage(null);
-            try {
-                const config = {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                };
-
-                const { data } = await axios.post(
-                    '/api/auth/register',
-                    { name, email, password },
-                    config
-                );
-
-                localStorage.setItem('userInfo', JSON.stringify(data));
-                navigate('/');
-            } catch (error) {
-                setError(error.response && error.response.data.message
-                    ? error.response.data.message
-                    : error.message);
-            }
+            setError('Passwords do not match');
+            return;
+        }
+        setError(null);
+        setIsLoading(true);
+        try {
+            const { data } = await axios.post('/api/auth/register', { name, email, password }, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+            localStorage.setItem('userInfo', JSON.stringify(data));
+            navigate('/');
+        } catch (error) {
+            setError(error.response?.data?.message || error.message);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <Layout>
-            <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-                <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">Sign Up</h1>
-                {message && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{message}</div>}
-                {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
-                <form onSubmit={submitHandler}>
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Name</label>
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            placeholder="Enter name"
-                            required
-                        />
+        <div className="min-h-screen bg-gradient-to-br from-cyber-bg via-cyber-bg-light to-cyber-bg flex items-center justify-center p-4">
+            <div className="w-full max-w-md">
+                {/* Logo */}
+                <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-neon-purple to-neon-magenta rounded-2xl mb-4 shadow-neon animate-pulse-neon">
+                        <Zap className="w-8 h-8 text-white" />
                     </div>
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            placeholder="Enter email"
-                            required
-                        />
+                    <h1 className="text-2xl font-bold text-white text-glow">Create Account</h1>
+                    <p className="text-text-secondary mt-1">Join SmartTask today</p>
+                </div>
+
+                {/* Card */}
+                <div className="cyber-card p-8 border-neon-purple/30">
+                    {error && (
+                        <div className="bg-red-500/20 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm">
+                            {error}
+                        </div>
+                    )}
+
+                    <form onSubmit={submitHandler} className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-text-primary mb-2">Name</label>
+                            <div className="relative">
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neon-purple" />
+                                <input
+                                    type="text"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    className="input-cyber pl-11"
+                                    placeholder="John Doe"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-text-primary mb-2">Email</label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neon-purple" />
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="input-cyber pl-11"
+                                    placeholder="you@example.com"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-text-primary mb-2">Password</label>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neon-purple" />
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="input-cyber pl-11"
+                                    placeholder="Create password"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-text-primary mb-2">Confirm Password</label>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neon-purple" />
+                                <input
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className="input-cyber pl-11"
+                                    placeholder="Confirm password"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="w-full btn-neon py-3 text-base disabled:opacity-50 mt-2"
+                        >
+                            {isLoading ? 'Creating...' : 'Create Account'}
+                        </button>
+                    </form>
+
+                    <div className="mt-6 text-center">
+                        <p className="text-sm text-text-secondary">
+                            Already have an account?{' '}
+                            <Link to="/login" className="text-neon-magenta hover:text-neon-pink font-medium">
+                                Sign in
+                            </Link>
+                        </p>
                     </div>
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            placeholder="Enter password"
-                            required
-                        />
-                    </div>
-                    <div className="mb-6">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Confirm Password</label>
-                        <input
-                            type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            placeholder="Confirm password"
-                            required
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        className="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded hover:bg-indigo-700 transition duration-300"
-                    >
-                        Register
-                    </button>
-                </form>
-                <div className="mt-4 text-center">
-                    <p className="text-gray-600 text-sm">
-                        Have an Account? <Link to="/login" className="text-indigo-600 hover:text-indigo-800">Login</Link>
-                    </p>
                 </div>
             </div>
-        </Layout>
+        </div>
     );
 };
 
