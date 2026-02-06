@@ -107,6 +107,3 @@ npm install axios
 node verify_api.js
 ```
 
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
